@@ -1,5 +1,7 @@
 package me.messageofdeath.lib.databasenew.mysql;
 
+import java.util.ArrayList;
+
 public class QueryBuilder {
 
     private String table;
@@ -68,10 +70,12 @@ public class QueryBuilder {
 
         private String table;
         private StringBuilder bui;
-        private transient boolean first;
+        private transient boolean first, top, distinct;
 
         Select(StringBuilder bui, String table) {
             first = true;
+            distinct = false;
+            top = false;
             this.table = table;
             this.bui = bui;
         }
@@ -83,6 +87,42 @@ public class QueryBuilder {
                 bui.append(" ").append(column);
                 first = false;
             }
+            return this;
+        }
+
+        public Select distinct() {
+            if(!first) {
+                throw new IllegalStateException("You must use DISTINCT, before defining any columns.");
+            }
+            if(distinct) {
+                throw new IllegalStateException("You can only use the 'Distinct' field once.");
+            }
+            bui.append(" DISTINCT ");
+            distinct = true;
+            return this;
+        }
+
+        public Select topN(int n) {
+            if(!first) {
+                throw new IllegalStateException("You must use TOP, before defining any columns.");
+            }
+            if(top) {
+                throw new IllegalStateException("You can only use the 'TopN' field once.");
+            }
+            bui.append(" TOP ").append(n);
+            top = true;
+            return this;
+        }
+
+        public Select topPerc(int percentage) {
+            if(!first) {
+                throw new IllegalStateException("You must use TOP, before defining any columns.");
+            }
+            if(top) {
+                throw new IllegalStateException("You can only use the 'TopPerc' field once.");
+            }
+            bui.append(" TOP ").append(percentage).append(" PERCENT");
+            top = true;
             return this;
         }
 
@@ -168,11 +208,6 @@ public class QueryBuilder {
             this.bui.append(" WHERE");
         }
 
-        public Where and(String column, Object value) {
-            bui.append(" AND");
-            return where(column, value);
-        }
-
         public Where where(String column, Object value) {
             bui.append(" ").append(column);
             if(value instanceof String) {
@@ -181,6 +216,89 @@ public class QueryBuilder {
                 bui.append(" = ").append(value);
             }
             return this;
+        }
+
+        public Where and(String column, Object value) {
+            bui.append(" AND");
+            return where(column, value);
+        }
+
+        public Where or(String column, Object value) {
+            bui.append(" OR");
+            return where(column, value);
+        }
+
+        public String in(String column, ArrayList<Object> values) {
+            bui.append(column);
+            if(values.size() > 1) {
+                bui.append(" IN (");
+                boolean first = true;
+                for(Object obj : values) {
+                    if(!first) {
+                        bui.append(", ");
+                    }else{
+                        first = false;
+                    }
+                    if(obj instanceof String) {
+                        bui.append("'").append(obj).append("'");
+                    }else{
+                        bui.append(obj);
+                    }
+                }
+                bui.append(")");
+            }else if(values.size() == 1){
+                bui.append(" = ");
+                if(values.get(0) instanceof String) {
+                    bui.append("'").append(values.get(0)).append("'");
+                }else{
+                    bui.append(values.get(0));
+                }
+            }
+            return bui.toString();
+        }
+
+        public String between(String column, Object min, Object max) {
+            bui.append(" BETWEEN ");
+            if(min instanceof String) {
+                bui.append("'").append(min).append("'");
+            }else{
+                bui.append(min);
+            }
+            bui.append(" AND ");
+            if(max instanceof String) {
+                bui.append("'").append(max).append("'");
+            }else{
+                bui.append(max);
+            }
+            return bui.toString();
+        }
+
+        public String notBetween(String column, Object min, Object max) {
+            bui.append(" NOT BETWEEN ");
+            if(min instanceof String) {
+                bui.append("'").append(min).append("'");
+            }else{
+                bui.append(min);
+            }
+            bui.append(" AND ");
+            if(max instanceof String) {
+                bui.append("'").append(max).append("'");
+            }else{
+                bui.append(max);
+            }
+            return bui.toString();
+        }
+
+        public String like(String column, String pattern) {
+            return bui.append(" ").append(column).append(" LIKE ").append(pattern).toString();
+        }
+
+        public String orderAscend(String column) {
+            return bui.append(" ORDER BY ").append(column).append(" ASC").toString();
+        }
+
+        public String orderDecend(String column) {
+            return bui.append(" ORDER BY ").append(column).append(" DESC").toString();
         }
 
         public String limit(int rows) {
