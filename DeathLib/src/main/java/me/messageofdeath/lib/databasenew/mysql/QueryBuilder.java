@@ -258,7 +258,7 @@ public class QueryBuilder {
         }
 
         public String between(String column, Object min, Object max) {
-            bui.append(" BETWEEN ");
+            bui.append(" ").append(column).append(" BETWEEN ");
             if(min instanceof String) {
                 bui.append("'").append(min).append("'");
             }else{
@@ -274,7 +274,7 @@ public class QueryBuilder {
         }
 
         public String notBetween(String column, Object min, Object max) {
-            bui.append(" NOT BETWEEN ");
+            bui.append(" ").append(column).append(" NOT BETWEEN ");
             if(min instanceof String) {
                 bui.append("'").append(min).append("'");
             }else{
