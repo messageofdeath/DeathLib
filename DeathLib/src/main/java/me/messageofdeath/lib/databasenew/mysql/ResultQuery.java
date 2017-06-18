@@ -16,14 +16,21 @@ public class ResultQuery implements IDeathDB {
         this.rs = rs;
     }
 
-    @Override
-    public boolean contains(String ignore) {
+    public boolean has() {
         try {
             return rs != null && rs.first();
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public void close() {
+        try {
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

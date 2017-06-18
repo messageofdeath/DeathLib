@@ -18,5 +18,7 @@ public interface IDeathYaml {
 
     void set(String where, Object set);
 
+    boolean contains(String where);
+
     ArrayList<String> getSection(String where, ArrayList<String> fallback);
 }

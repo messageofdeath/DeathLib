@@ -7,14 +7,6 @@ import java.util.Date;
 public interface IDeathDB {
 
     /**
-     * Finds if it occurs
-     * @param where - YAML format - location in file
-     *        where - MySQL format - ignore parameter
-     * @return if it exists
-     */
-    boolean contains(String where);
-
-    /**
      * Get a String
      * @param where - YAML format - location in file
      *        where - MySQL format - Use the column needed

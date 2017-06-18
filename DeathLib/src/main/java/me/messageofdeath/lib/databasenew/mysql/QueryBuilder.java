@@ -14,18 +14,9 @@ public class QueryBuilder {
      * Requires @value to be Table name
      * @return Where - To set parameters of getting values
      */
-    public Where selectWhere() {
-        bui.append("SELECT * FROM ").append(table);
-        return new Where(bui);
-    }
-
-    /**
-     * Requires @value to be Table name
-     * @return finished query of selecting all values in table
-     */
-    public String selectAll() {
-        bui.append("SELECT * FROM ").append(table);
-        return bui.toString();
+    public Select select() {
+        bui.append("SELECT");
+        return new Select(bui, table);
     }
 
     /**
@@ -73,24 +64,93 @@ public class QueryBuilder {
         return new AlterTable(bui);
     }
 
+    public class Select {
+
+        private String table;
+        private StringBuilder bui;
+        private transient boolean first;
+
+        Select(StringBuilder bui, String table) {
+            first = true;
+            this.table = table;
+            this.bui = bui;
+        }
+
+        public Select column(String column) {
+            if(!first) {
+                bui.append(", ").append(column);
+            }else{
+                bui.append(" ").append(column);
+                first = false;
+            }
+            return this;
+        }
+
+        public String limit(int rows) {
+            return bui.append(" LIMIT ").append(rows).toString();
+        }
+
+        public Where toWhere() {
+            if(first) {
+                throw new IllegalStateException("You need a minimum of at least 1 column to select.");
+            }
+            return new Where(bui.append(" FROM ").append(table));
+        }
+
+        public Where allColumns() {
+            if(!first) {
+                throw new IllegalStateException("You cannot specify columns, then request all columns.");
+            }
+            return new Where(bui.append(" * FROM ").append(table));
+        }
+
+        public String build() {
+            if(first) {
+                throw new IllegalStateException("You need a minimum of at least 1 column to select.");
+            }
+            return bui.append(" FROM ").append(table).toString();
+        }
+
+        public String buildLimit(int rows) {
+            if(first) {
+                throw new IllegalStateException("You need a minimum of at least 1 column to select.");
+            }
+            return bui.append(" FROM ").append(table).append(" LIMIT ").append(rows).toString();
+        }
+
+        public String buildAllColumns() {
+            if (!first) {
+                throw new IllegalStateException("You cannot specify columns, then request all columns.");
+            }
+            return bui.append(" * FROM ").append(table).toString();
+        }
+
+        public String buildAllColumnsLimit(int rows) {
+            if (!first) {
+                throw new IllegalStateException("You cannot specify columns, then request all columns.");
+            }
+            return bui.append(" * FROM ").append(table).append(" LIMIT ").append(rows).toString();
+        }
+    }
+
     public class CreateTable {
 
-        private int i;
         private StringBuilder bui;
+        private transient boolean first;
 
         CreateTable(StringBuilder bui) {
             this.bui = bui;
             bui.append(" (");
-            i = 0;
+            first = true;
         }
 
         public CreateTable column(Column column) {
-            if(i > 0) {
+            if(!first) {
                 bui.append(", ").append(column.getColumn());
             }else{
                 bui.append(column.getColumn());
+                first = false;
             }
-            i++;
             return this;
         }
 
@@ -108,7 +168,7 @@ public class QueryBuilder {
             this.bui.append(" WHERE");
         }
 
-        public Where andWhere(String column, Object value) {
+        public Where and(String column, Object value) {
             bui.append(" AND");
             return where(column, value);
         }
@@ -121,6 +181,10 @@ public class QueryBuilder {
                 bui.append(" = ").append(value);
             }
             return this;
+        }
+
+        public String limit(int rows) {
+            return bui.append(" LIMIT ").append(rows).toString();
         }
 
         public String build() {
@@ -137,7 +201,7 @@ public class QueryBuilder {
             this.bui.append(" SET");
         }
 
-        public Set andSet(String column, Object value) {
+        public Set and(String column, Object value) {
             bui.append(" AND");
             return set(column, value);
         }
@@ -159,29 +223,30 @@ public class QueryBuilder {
 
     public class Insert {
 
-        private int i;
-        private StringBuilder bui, columns, values;
+        private StringBuilder bui;
+        private transient boolean first;
+        private transient StringBuilder columns, values;
 
         Insert(StringBuilder bui) {
             this.bui = bui;
             columns = new StringBuilder();
             values = new StringBuilder();
-            i = 0;
+            first = true;
         }
 
         public Insert insert(String column, Object value) {
-            if(i > 0) {
+            if(!first) {
                 columns.append(", ").append(column);
                 values.append(", ");
             }else{
                 columns.append(column);
+                first = false;
             }
             if(value instanceof String) {
                 values.append("'").append(value).append("'");
             }else{
                 values.append(value);
             }
-            i++;
             return this;
         }
 

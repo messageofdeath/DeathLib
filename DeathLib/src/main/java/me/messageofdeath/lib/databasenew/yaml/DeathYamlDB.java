@@ -173,13 +173,13 @@ public abstract class DeathYamlDB implements IDeathDB, IDeathYaml {
     @Override
     public Time getTime(String where, Time fallback) {
         //Not supported
-        return null;
+        return fallback;
     }
 
     @Override
     public Date getDate(String where, Date fallback) {
         //Not supported
-        return null;
+        return fallback;
     }
 
     @Override
