@@ -97,7 +97,7 @@ public class QueryBuilder {
             if(distinct) {
                 throw new IllegalStateException("You can only use the 'Distinct' field once.");
             }
-            bui.append(" DISTINCT ");
+            bui.append(" DISTINCT");
             distinct = true;
             return this;
         }
@@ -202,13 +202,18 @@ public class QueryBuilder {
     public class Where {
 
         private StringBuilder bui;
+        private transient boolean where;
 
         Where(StringBuilder bui) {
             this.bui = bui;
-            this.bui.append(" WHERE");
+            where = false;
         }
 
         public Where where(String column, Object value) {
+            if(!where) {
+                bui.append(" WHERE");
+                where = true;
+            }
             bui.append(" ").append(column);
             if(value instanceof String) {
                 bui.append(" = '").append(value).append("'");
@@ -219,16 +224,25 @@ public class QueryBuilder {
         }
 
         public Where and(String column, Object value) {
+            if(!where) {
+                throw new IllegalStateException("In order to use 'AND' you must declare 'WHERE' first.");
+            }
             bui.append(" AND");
             return where(column, value);
         }
 
         public Where or(String column, Object value) {
+            if(!where) {
+                throw new IllegalStateException("In order to use 'OR' you must declare 'WHERE' first.");
+            }
             bui.append(" OR");
             return where(column, value);
         }
 
         public String in(String column, ArrayList<Object> values) {
+            if(!where) {
+                throw new IllegalStateException("In order to use 'IN' you must declare 'WHERE' first.");
+            }
             bui.append(column);
             if(values.size() > 1) {
                 bui.append(" IN (");
@@ -258,6 +272,9 @@ public class QueryBuilder {
         }
 
         public String between(String column, Object min, Object max) {
+            if(!where) {
+                throw new IllegalStateException("In order to use 'BETWEEN' you must declare 'WHERE' first.");
+            }
             bui.append(" ").append(column).append(" BETWEEN ");
             if(min instanceof String) {
                 bui.append("'").append(min).append("'");
@@ -274,6 +291,9 @@ public class QueryBuilder {
         }
 
         public String notBetween(String column, Object min, Object max) {
+            if(!where) {
+                throw new IllegalStateException("In order to use 'NOT BETWEEN' you must declare 'WHERE' first.");
+            }
             bui.append(" ").append(column).append(" NOT BETWEEN ");
             if(min instanceof String) {
                 bui.append("'").append(min).append("'");
@@ -290,6 +310,9 @@ public class QueryBuilder {
         }
 
         public String like(String column, String pattern) {
+            if(!where) {
+                throw new IllegalStateException("In order to use 'LIKE' you must declare 'WHERE' first.");
+            }
             return bui.append(" ").append(column).append(" LIKE ").append(pattern).toString();
         }
 
