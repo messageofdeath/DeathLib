@@ -1,6 +1,6 @@
 package me.messageofdeath.lib;
 
-import org.bstats.Metrics;
+import me.messageofdeath.lib.metrics.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
