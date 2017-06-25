@@ -60,8 +60,8 @@ public class TestClass extends DeathMySQLDB {
         }else{
             query(new QueryBuilder(getTable()).update()
                     .set("Name", "messageofdeath")
-                    .and("Money", 200.121232D)
-                    .and("MoneyFormatted", 200.12D).toWhere()
+                    .set("Money", 200.121232D)
+                    .set("MoneyFormatted", 200.12D).toWhere()
                     .where("Name", "messageofdeath").build()).close();
         }
     }

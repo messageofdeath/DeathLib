@@ -336,19 +336,21 @@ public class QueryBuilder {
     public class Set {
 
         private StringBuilder bui;
+        private transient boolean first;
 
         Set(StringBuilder bui) {
             this.bui = bui;
+            first = true;
             this.bui.append(" SET");
         }
 
-        public Set and(String column, Object value) {
-            bui.append(" AND");
-            return set(column, value);
-        }
-
         public Set set(String column, Object value) {
-            bui.append(" ").append(column);
+            if(!first) {
+                bui.append(", ").append(column);
+            }else{
+                bui.append(" ").append(column);
+                first = false;
+            }
             if(value instanceof String) {
                 bui.append(" = '").append(value).append("'");
             }else{

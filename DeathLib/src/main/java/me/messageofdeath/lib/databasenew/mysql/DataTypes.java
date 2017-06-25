@@ -28,6 +28,8 @@ public enum DataTypes {
 
     YEAR,
 
+    BOOLEAN,
+
     CHAR,
 
     VARCHAR,
@@ -54,6 +56,8 @@ public enum DataTypes {
     public enum Limit {
 
         CHAR,
+
+        TINYINT,
 
         VARCHAR;
     }

@@ -1,6 +1,5 @@
 package me.messageofdeath.lib.databasenew.mysql;
 
-import me.messageofdeath.lib.database.MySQL;
 import me.messageofdeath.lib.databasenew.IDeathMySQL;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -10,14 +9,14 @@ public abstract class DeathMySQLDB implements IDeathMySQL {
 
     private JavaPlugin plugin;
     private String table;
-    private transient MySQL mysql;
+    private transient MySQLBackend mysql;
     private transient final String prefix;
 
     public DeathMySQLDB(JavaPlugin plugin, String prefix, String table, String host, String port, String db, String user, String pass) {
         this.plugin = plugin;
         this.prefix = prefix;
         this.table = table;
-        this.mysql = new MySQL(plugin.getLogger(), prefix, host, port, db, user, pass);
+        this.mysql = new MySQLBackend(plugin.getLogger(), prefix, host, port, db, user, pass);
         open();
         if(!doesTableExist()) {
             createTable();
@@ -51,12 +50,11 @@ public abstract class DeathMySQLDB implements IDeathMySQL {
         open();
         if(checkConnection()) {
             try {
-               set = new ResultQuery(mysql.query(query));
+               set = new ResultQuery(mysql.query(query), this);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
-        close();
         return set;
     }
 

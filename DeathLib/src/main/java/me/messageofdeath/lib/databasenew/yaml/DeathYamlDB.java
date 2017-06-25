@@ -7,12 +7,14 @@ import me.messageofdeath.lib.databasenew.IDeathYaml;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public abstract class DeathYamlDB implements IDeathDB, IDeathYaml {
 
@@ -207,6 +209,21 @@ public abstract class DeathYamlDB implements IDeathDB, IDeathYaml {
     @Override
     public int getOccurrences(String where) {
         return getSection(where, new ArrayList<>()).size();
+    }
+
+    public ItemStack getItemStack(String key, ItemStack fallback) {
+        if (config.contains(key)) {
+            return config.getItemStack(key);
+        }
+        return fallback;
+    }
+
+    @SuppressWarnings("unchecked")
+    public ItemStack[] getItemStacks(String key, ItemStack[] fallback) {
+        if (config.contains(key)) {
+            return ((List<ItemStack>)config.get(key)).toArray(new ItemStack[0]);
+        }
+        return fallback;
     }
 
     private void copy(InputStream in, File file) {

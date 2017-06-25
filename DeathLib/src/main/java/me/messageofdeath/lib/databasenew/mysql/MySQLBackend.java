@@ -104,7 +104,6 @@ public class MySQLBackend {
     statement = this.connection.createStatement();
     result = statement.executeQuery("SELECT CURTIME()");
     switch (getStatement(query)) {
-      case ALTER:
       case CALL:
       case DEALLOCATE:
       case RELEASE:
@@ -112,6 +111,7 @@ public class MySQLBackend {
       case REPLACE:
         result = statement.executeQuery(query);
         break;
+      case ALTER:
       case ANALYZE:
       case ATTACH:
       case BEGIN:
@@ -135,6 +135,7 @@ public class MySQLBackend {
       case PRAGMA:
       case PREPARE:
       case REINDEX:
+      case UPDATE:
         this.lastUpdate = statement.executeUpdate(query);
         break;
       case ROLLBACK:
